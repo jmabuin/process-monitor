@@ -1,0 +1,23 @@
+{
+  "interval": 3,
+  "cpu": {
+    "measure": true
+  },
+  "memory": {
+    "measure": true,
+    "units": "MB"
+  },
+  "papi": {
+    "measure": true,
+    "accumulate": true,
+    "events": [
+      "PAPI_L1_DCM",
+      "PAPI_L2_DCM"
+    ]
+  },
+  "energy": {
+    "measure": true,
+    "accumulate": true
+  },
+  "command": "/opt/google/chrome/chrome"
+}
