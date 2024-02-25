@@ -1,0 +1,10 @@
+//
+// Created by chema on 2/15/24.
+//
+
+#ifndef PROCESS_MONITOR_GLOBALS_H
+#define PROCESS_MONITOR_GLOBALS_H
+
+#define PACKAGE_VERSION "0.0.1"
+
+#endif //PROCESS_MONITOR_GLOBALS_H
