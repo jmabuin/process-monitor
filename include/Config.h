@@ -17,6 +17,8 @@ public:
 
     std::string MeasureMemoryUnits = "MB";
 
+    bool MeasureIo = true;
+
     bool MeasurePapi = false;
     bool AccumulatePapi = false;
     std::vector<std::string> PapiEvents;

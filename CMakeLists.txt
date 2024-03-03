@@ -65,7 +65,8 @@ add_executable(process-monitor src/main.cpp
         src/ProcessUtils.cpp
         include/ProcessUtils.h
         src/StringUtils.cpp
-        include/StringUtils.h)
+        include/StringUtils.h
+        include/IoMeasure.h)
 
 target_link_libraries(process-monitor ${PAPI_STATIC_LIBRARY})
 target_link_libraries(process-monitor ${PROCPS_STATIC_LIBRARY})
