@@ -8,7 +8,8 @@
     "units": "MB"
   },
   "io": {
-    "measure": true
+    "measure": true,
+    "accumulate": true
   },
   "papi": {
     "measure": true,

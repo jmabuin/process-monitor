@@ -18,6 +18,7 @@ public:
     std::string MeasureMemoryUnits = "MB";
 
     bool MeasureIo = true;
+    bool AccumulateIo = false;
 
     bool MeasurePapi = false;
     bool AccumulatePapi = false;

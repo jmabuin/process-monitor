@@ -105,8 +105,14 @@ void ProcessInfo::run() {
                     auto io_read_measure = IoMeasure{seconds, proc_info->syscr};
                     auto io_write_measure = IoMeasure{seconds, proc_info->syscw};
 
-                    this->num_io_read_operations.push_back(io_read_measure);
-                    this->num_io_write_operations.push_back(io_write_measure);
+                    if (this->configuration->AccumulateIo) {
+                        this->num_io_read_operations.push_back(io_read_measure);
+                        this->num_io_write_operations.push_back(io_write_measure);
+                    } else {
+                        this->num_io_read_operations.push_back(io_read_measure - this->num_io_read_operations.back());
+                        this->num_io_write_operations.push_back(io_write_measure);
+                    }
+
                 }
                 found = true;
             }

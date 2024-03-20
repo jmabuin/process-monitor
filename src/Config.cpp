@@ -31,6 +31,7 @@ Config Config::from_json_file(const std::string& config_json_file) {
 
     if (data.contains("io")){
         new_config.MeasureIo = data["io"]["measure"];
+        new_config.AccumulateIo = data["io"]["accumulate"];
     }
 
     if (data.contains("papi")) {
