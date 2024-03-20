@@ -53,6 +53,8 @@ void ProcessInfo::run() {
     long Hertz = procps_hertz_get();
     double current_cpu;
 
+    // Variables to calculate IO reads and writes
+    unsigned long old_reads = 0, old_writes = 0;
 
     std::cout << "[" << this->class_name << "] Started reading processes table. Looking for PID: " << this->Pid << std::endl;
     while (!stop_run) {
@@ -102,16 +104,25 @@ void ProcessInfo::run() {
                 this->memory_measures.push_back(MemoryMeasure{seconds, proc_info->vm_rss});
 
                 if (this->configuration->MeasureIo) {
-                    auto io_read_measure = IoMeasure{seconds, proc_info->syscr};
-                    auto io_write_measure = IoMeasure{seconds, proc_info->syscw};
+                    auto current_reads = proc_info->syscr;
+                    auto current_writes = proc_info->syscw;
 
-                    if (this->configuration->AccumulateIo) {
-                        this->num_io_read_operations.push_back(io_read_measure);
-                        this->num_io_write_operations.push_back(io_write_measure);
-                    } else {
-                        this->num_io_read_operations.push_back(io_read_measure - this->num_io_read_operations.back());
-                        this->num_io_write_operations.push_back(io_write_measure);
+                    auto io_read_measure = IoMeasure{seconds, current_reads};
+                    auto io_write_measure = IoMeasure{seconds, current_writes};
+
+                    if (!this->configuration->AccumulateIo) {
+                        auto num_reads = current_reads - old_reads;
+                        auto num_writes = current_writes - old_writes;
+
+                        io_read_measure.quantity = num_reads;
+                        io_write_measure.quantity = num_writes;
+
+                        old_reads = current_reads;
+                        old_writes = current_writes;
                     }
+
+                    this->num_io_read_operations.push_back(io_read_measure);
+                    this->num_io_write_operations.push_back(io_write_measure);
 
                 }
                 found = true;
