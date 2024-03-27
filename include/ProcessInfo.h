@@ -19,6 +19,7 @@ extern "C"
 #include <thread>
 #include "CpuMeasure.h"
 #include "MemoryMeasure.h"
+#include "IoMeasure.h"
 #include "Config.h"
 #include "third-party/procps/readproc.h"
 
@@ -33,6 +34,8 @@ public:
     Config *configuration;
     std::vector<CpuMeasure> cpu_measures;
     std::vector<MemoryMeasure> memory_measures;
+    std::vector<IoMeasure> num_io_read_operations;
+    std::vector<IoMeasure> num_io_write_operations;
 
     std::thread running_thread;
 

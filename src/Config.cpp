@@ -29,6 +29,11 @@ Config Config::from_json_file(const std::string& config_json_file) {
         new_config.MeasureMemoryUnits = data["memory"]["units"];
     }
 
+    if (data.contains("io")){
+        new_config.MeasureIo = data["io"]["measure"];
+        new_config.AccumulateIo = data["io"]["accumulate"];
+    }
+
     if (data.contains("papi")) {
         new_config.MeasurePapi = data["papi"]["measure"];
         new_config.AccumulatePapi = data["papi"]["accumulate"];

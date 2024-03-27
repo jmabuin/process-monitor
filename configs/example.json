@@ -7,6 +7,10 @@
     "measure": true,
     "units": "MB"
   },
+  "io": {
+    "measure": true,
+    "accumulate": true
+  },
   "papi": {
     "measure": true,
     "accumulate": true,

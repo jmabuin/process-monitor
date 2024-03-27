@@ -53,13 +53,15 @@ void ProcessInfo::run() {
     long Hertz = procps_hertz_get();
     double current_cpu;
 
+    // Variables to calculate IO reads and writes
+    unsigned long old_reads = 0, old_writes = 0;
 
     std::cout << "[" << this->class_name << "] Started reading processes table. Looking for PID: " << this->Pid << std::endl;
     while (!stop_run) {
         seconds_since_boot = get_uptime();
 
         proc_tab = openproc(
-                PROC_FILLMEM | PROC_FILLSTAT | PROC_FILLSTATUS | PROC_FILLUSR | PROC_FILLENV | PROC_FILLARG);
+                PROC_FILLMEM | PROC_FILLSTAT | PROC_FILLSTATUS | PROC_FILLUSR | PROC_FILLENV | PROC_FILLARG | PROC_FILLIO);
 
         auto *proc_info = (proc_t *) calloc(1, sizeof(proc_t));
 
@@ -101,6 +103,28 @@ void ProcessInfo::run() {
                 this->cpu_measures.push_back(CpuMeasure{seconds, current_cpu});
                 this->memory_measures.push_back(MemoryMeasure{seconds, proc_info->vm_rss});
 
+                if (this->configuration->MeasureIo) {
+                    auto current_reads = proc_info->syscr;
+                    auto current_writes = proc_info->syscw;
+
+                    auto io_read_measure = IoMeasure{seconds, current_reads};
+                    auto io_write_measure = IoMeasure{seconds, current_writes};
+
+                    if (!this->configuration->AccumulateIo) {
+                        auto num_reads = current_reads - old_reads;
+                        auto num_writes = current_writes - old_writes;
+
+                        io_read_measure.quantity = num_reads;
+                        io_write_measure.quantity = num_writes;
+
+                        old_reads = current_reads;
+                        old_writes = current_writes;
+                    }
+
+                    this->num_io_read_operations.push_back(io_read_measure);
+                    this->num_io_write_operations.push_back(io_write_measure);
+
+                }
                 found = true;
             }
         }
@@ -154,4 +178,30 @@ void ProcessInfo::write_results_to_file() {
     }
 
     memory_file.close();
+
+    // Write IO measures if needed
+    std::string io_reads_file_name = std::to_string(this->Pid) + "_io_reads.csv";
+    std::string io_writes_file_name = std::to_string(this->Pid) + "_io_writes.csv";
+
+    if (!this->num_io_read_operations.empty()) {
+        std::ofstream io_reads_file;
+        io_reads_file.open(*this->output_folder + "/" + io_reads_file_name);
+
+        for(const IoMeasure& current_io_read_measure : this->num_io_read_operations) {
+            io_reads_file << current_io_read_measure.time_seconds << ";" << current_io_read_measure.quantity << std::endl;
+        }
+
+        io_reads_file.close();
+    }
+
+    if (!this->num_io_write_operations.empty()) {
+        std::ofstream io_writes_file;
+        io_writes_file.open(*this->output_folder + "/" + io_writes_file_name);
+
+        for(const IoMeasure& current_io_write_measure : this->num_io_write_operations) {
+            io_writes_file << current_io_write_measure.time_seconds << ";" << current_io_write_measure.quantity << std::endl;
+        }
+
+        io_writes_file.close();
+    }
 }
