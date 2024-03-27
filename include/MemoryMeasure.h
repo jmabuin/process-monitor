@@ -7,7 +7,7 @@
 
 struct MemoryMeasure {
     unsigned long long time_seconds;
-    unsigned long long quantity;
+    double quantity;
 };
 
 #endif //PROCESS_MONITOR_MEMORYMEASURE_H

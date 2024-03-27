@@ -52,38 +52,25 @@ message(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 message(CMAKE_MODULE_PATH="${CMAKE_MODULE_PATH}")
 
 include_directories(./include)
+include_directories(./third-party/pfs/include)
 
 find_package(Threads REQUIRED)
 #find_package(CUDA REQUIRED)
 
 set(PAPI_STATIC_LIBRARY ${CMAKE_SOURCE_DIR}/third-party/libs/libpapi.a)
 
-#message(PAPI_PREFIX_DIRS="${PAPI_PREFIX_DIRS}")
-#message(PAPI_LIBRARIES="${PAPI_LIBRARIES}")
-#message(PAPI_STATIC_LIBRARIES="${PAPI_STATIC_LIBRARIES}")
-#message(PAPI_INCLUDE_DIRS="${PAPI_INCLUDE_DIRS}")
 message(PAPI_STATIC_LIBRARY="${PAPI_STATIC_LIBRARY}")
 
 include_directories(${PAPI_INCLUDE_DIRS})
 
-#find_package(Procps REQUIRED)
+set(PFS_STATIC_LIBRARY ${CMAKE_SOURCE_DIR}/third-party/libs/libpfs.a)
 
-set(PROCPS_STATIC_LIBRARY ${CMAKE_SOURCE_DIR}/third-party/libs/libproc2.a)
-
-#message(PROCPS_PREFIX_DIRS="${PROCPS_PREFIX_DIRS}")
-#message(PROCPS_LIBRARIES="${PROCPS_LIBRARIES}")
-#message(PROCPS_STATIC_LIBRARIES="${PROCPS_STATIC_LIBRARIES}")
-#message(PROCPS_INCLUDE_DIRS="${PROCPS_INCLUDE_DIRS}")
-message(PROCPS_STATIC_LIBRARY="${PROCPS_STATIC_LIBRARY}")
-
-include_directories(${PROCPS_INCLUDE_DIRS})
+message(PFS_STATIC_LIBRARY="${PFS_STATIC_LIBRARY}")
 
 add_library(libprocess-monitor include/Config.h
         include/Args.h
         include/Globals.h
         include/third-party/nlohmann/json.h
-        include/third-party/procps/misc.h
-        include/third-party/procps/readproc.h
         src/Config.cpp
         src/ProcessInfo.cpp
         include/ProcessInfo.h
@@ -103,17 +90,12 @@ add_library(libprocess-monitor include/Config.h
         include/IoMeasure.h)
 
 target_link_libraries(libprocess-monitor ${PAPI_STATIC_LIBRARY})
-target_link_libraries(libprocess-monitor ${PROCPS_STATIC_LIBRARY})
+target_link_libraries(libprocess-monitor ${PFS_STATIC_LIBRARY})
 target_link_libraries(libprocess-monitor Threads::Threads)
 
 add_executable(process-monitor src/main.cpp)
 
 target_link_libraries(process-monitor libprocess-monitor)
-#target_link_libraries(process-monitor ${PAPI_STATIC_LIBRARY})
-#target_link_libraries(process-monitor ${PROCPS_STATIC_LIBRARY})
-#target_link_libraries(process-monitor Threads::Threads)
-#target_link_libraries(process_monitor ${CUDA_LIBRARIES})
-
 
 # Generic tests
 file(GLOB test_files "tests/*.cpp")

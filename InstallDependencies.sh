@@ -10,23 +10,22 @@ echo "Creating third-party folders..."
 mkdir -p third-party
 mkdir -p third-party/libs
 
-# For libproc2
+# For lpfs
 
-echo "Installing libproc2 ..."
+echo "Installing pfs ..."
 cd third-party
 
-if ! test -d procps; then
-  git clone -b v4.0.4 https://gitlab.com/procps-ng/procps.git
-  cd procps
-  ./autogen.sh
-  ./configure
+if test -d pfs; then
+  cd pfs
+  mkdir build && cd build
+  cmake ..
   make
 fi
 
 cd $CURRENT_FOLDER
 
-if ! test -f third-party/libs/libproc2.a; then
-  cp third-party/procps/library/.libs/libproc2.a third-party/libs/
+if ! test -f third-party/libs/libpfs.a; then
+  cp third-party/pfs/build/lib/libpfs.a third-party/libs/
 fi
 
 # For PAPI

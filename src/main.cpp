@@ -24,11 +24,11 @@ static int usage() {
     fprintf(stderr, "Common options:\n");
     fprintf(stderr, "\n");
 
-    fprintf(stderr, " -d		Debug mode. Default: False.\n");
-    fprintf(stderr, " -h		Print this help.\n");
-    fprintf(stderr, " -p		PID of process we are looking for.\n");
-    fprintf(stderr, " -c		JSON configuration file to be used.\n");
-    fprintf(stderr, " -o		Output folder to store results.\n");
+    fprintf(stderr, " -d \tDebug mode. Default: False.\n");
+    fprintf(stderr, " -h \tPrint this help.\n");
+    fprintf(stderr, " -p \tPID of process we are looking for.\n");
+    fprintf(stderr, " -c \tJSON configuration file to be used.\n");
+    fprintf(stderr, " -o \tOutput folder to store results.\n");
 
     fprintf(stderr, "\n");
 
@@ -148,17 +148,13 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         } else if (new_pid == 0) { // Child process. Run command.
             execl("/bin/sh", "/bin/sh", "-c", config.Command.c_str(), NULL);
-
-            /*auto fd = popen(config.Command.c_str(), "r");
-            pclose(fd);*/
-
         } else {
             std::cout << "Theoretical children PID is: " << new_pid << std::endl;
 
             sleep(1); // Let's give some time to children to start
             auto subprocess_pid = ProcessUtils::FindChildrenDirect(new_pid, config.Command);
 
-            if (subprocess_pid != 0) {
+            if (subprocess_pid != -1) {
                 std::cout << "Real children PID is: " << subprocess_pid << std::endl;
                 input_args.Pid = subprocess_pid;
             } else {

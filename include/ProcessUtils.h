@@ -7,12 +7,13 @@
 
 
 #include <string>
+#include <vector>
 
 class ProcessUtils {
 
 public:
-    static pid_t FindChildren(pid_t parent, const std::string& cmdline);
     static pid_t FindChildrenDirect(pid_t parent, const std::string& cmdline);
+    static std::string CmdToString(const std::vector<std::string>& items);
 };
 
 
