@@ -4,7 +4,7 @@
 
 #include "StringUtils.h"
 
-std::string StringUtils::ReplaceAll(std::string in, const std::string& from, const std::string& to) {
+std::string StringUtils::ReplaceAll(std::string in, std::string_view from, std::string_view to) {
     std::string tmp = in;
 
     if ( from.empty())

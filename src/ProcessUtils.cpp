@@ -7,16 +7,14 @@
 #include "ProcessUtils.h"
 #include "pfs/procfs.hpp"
 
-pid_t ProcessUtils::FindChildrenDirect(pid_t parent, const std::string &cmdline) {
+pid_t ProcessUtils::FindChildrenDirect(pid_t parent, std::string_view cmdline) {
 
     auto task = pfs::procfs().get_task(parent);
 
     auto pfs = pfs::procfs();
     for (const auto& process : pfs.get_processes()) {
-        if (process.get_stat().ppid == parent) {
-            if (CmdToString(process.get_cmdline()) == cmdline) {
-                return process.id();
-            }
+        if ((process.get_stat().ppid == parent) && (CmdToString(process.get_cmdline()) == cmdline)) {
+            return process.id();
         }
 
     }

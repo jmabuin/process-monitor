@@ -10,7 +10,7 @@
 
 class StringUtils {
 public:
-    static std::string ReplaceAll( std::string in, const std::string& from, const std::string& to );
+    static std::string ReplaceAll( std::string in, std::string_view from, std::string_view to );
 };
 
 

@@ -12,7 +12,7 @@
 class ProcessUtils {
 
 public:
-    static pid_t FindChildrenDirect(pid_t parent, const std::string& cmdline);
+    static pid_t FindChildrenDirect(pid_t parent, std::string_view cmdline);
     static std::string CmdToString(const std::vector<std::string>& items);
 };
 

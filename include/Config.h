@@ -27,7 +27,6 @@ public:
     bool MeasureEnergy = false;
     bool AccumulateEnergy = false;
 
-    //std::vector<std::string> Command;
     std::string Command;
 
     static Config from_json_file(const std::string& config_json_file);

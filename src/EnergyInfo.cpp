@@ -23,11 +23,10 @@ extern "C"
 #include <fstream>
 
 
-EnergyInfo::EnergyInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) {
-    this->Pid = pid;
-    this->configuration = config;
-    this->output_folder = output_folder;
-    this->debug_mode = debug_mode;
+EnergyInfo::EnergyInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) :Pid(pid),
+                                                                                              debug_mode(debug_mode),
+                                                                                              output_folder(output_folder),
+                                                                                              configuration(config) {
 }
 
 void EnergyInfo::run_thread() {
@@ -36,11 +35,15 @@ void EnergyInfo::run_thread() {
 
 void EnergyInfo::run() {
     int EventSet = PAPI_NULL;
-    int ret_val,cid,rapl_cid=-1,numcmp;
+    int ret_val;
+    int cid;
+    int rapl_cid=-1;
+    int num_components;
     int code;
-    int r, i;
+    int r;
+    int i;
     int num_events=0;
-    const PAPI_component_info_t *cmpinfo;
+    const PAPI_component_info_t *component_info;
     char event_names[MAX_RAPL_EVENTS][PAPI_MAX_STR_LEN];
     char units[MAX_RAPL_EVENTS][PAPI_MIN_STR_LEN];
     std::vector<std::string> event_names_vector;
@@ -48,8 +51,10 @@ void EnergyInfo::run() {
     long long *values;
     PAPI_event_info_t evinfo;
 
-    long long start_time,after_time;
-    double total_time = 0.0, local_time;
+    long long start_time;
+    long long after_time;
+    double total_time = 0.0;
+    double local_time;
 
     std::cout << "Started Energy info. Looking for PID: " << this->Pid << std::endl;
 
@@ -63,16 +68,16 @@ void EnergyInfo::run() {
         std::cerr << "[" << this->class_name << "][" << __func__ << "] Error initializing PAPI: " << PAPI_strerror(ret_val) << std::endl;
         exit(EXIT_FAILURE);
     }
-    numcmp = PAPI_num_components();
+    num_components = PAPI_num_components();
 
-    for(cid=0; cid<numcmp; cid++) {
+    for(cid=0; cid < num_components; cid++) {
 
-        if ( (cmpinfo = PAPI_get_component_info(cid)) == nullptr) {
+        if ((component_info = PAPI_get_component_info(cid)) == nullptr) {
             std::cerr << "[" << this->class_name << "][" << __func__ << "] PAPI_get_component_info failed" << std::endl;
             exit(EXIT_FAILURE);
         }
 
-        if (std::string(cmpinfo->name) == "rapl") {
+        if (std::string(component_info->name) == "rapl") {
 
             rapl_cid=cid;
 
@@ -80,8 +85,8 @@ void EnergyInfo::run() {
                 std::cout << "[" << this->class_name << "] Found RAPL component at cid: " << rapl_cid << std::endl;
             }
 
-            if (cmpinfo->disabled) {
-                std::cout << "[" << this->class_name << "] RAPL component disabled: " << cmpinfo->disabled_reason << std::endl;
+            if (component_info->disabled) {
+                std::cout << "[" << this->class_name << "] RAPL component disabled: " << component_info->disabled_reason << std::endl;
                 return;
             }
 
@@ -90,7 +95,7 @@ void EnergyInfo::run() {
     }
 
     /* Component not found */
-    if (cid==numcmp) {
+    if (cid == num_components) {
         std::cout << "[" << this->class_name << "] RAPL component not found" << std::endl;
         return;
     }
@@ -144,7 +149,6 @@ void EnergyInfo::run() {
         units[num_events][sizeof(units[0])-1] = '\0';
 
         data_type[num_events] = evinfo.data_type;
-        //std::cout << "NAME: " << event_names[num_events] << " UNITS: " <<  units[num_events] << " DATATYPE: " << data_type[num_events] << std::endl;
 
         ret_val = PAPI_add_event( EventSet, code );
         if (ret_val != PAPI_OK) {
@@ -195,7 +199,8 @@ void EnergyInfo::run() {
         }
 
         if (!this->configuration->AccumulateEnergy) {
-            if ((ret_val = PAPI_reset(EventSet)) != PAPI_OK) {
+            ret_val = PAPI_reset(EventSet);
+            if (ret_val != PAPI_OK) {
                 std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_reset: " << PAPI_strerror(ret_val) << std::endl;
                 exit(EXIT_FAILURE);
             }
@@ -217,10 +222,6 @@ void EnergyInfo::run() {
                     std::cout << "[" << this->class_name << "] " << event_names_vector[i] << ": " << new_measure.time_seconds << ", " << new_measure.quantity << " Jules" << std::endl;
                 }
             }
-
-            /*if (strstr(event_names[i],"ENERGY_CNT")) {
-                printf("%-40s%12lld\t%#08llx %s\n", event_names[i], values[i], values[i], units[i]);
-            }*/
         }
         sleep(this->configuration->MeasureInterval);
     }

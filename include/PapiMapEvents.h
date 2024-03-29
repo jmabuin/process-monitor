@@ -19,7 +19,7 @@ extern "C"
 
 namespace PapiMapEvents {
 
-    std::unordered_map<std::string, int> PapiMapEvents = {
+    const std::unordered_map<std::string, int> PapiMapEvents = {
             {"PAPI_L1_DCM", PAPI_L1_DCM},
             {"PAPI_L1_ICM", PAPI_L1_ICM},
             {"PAPI_L2_DCM", PAPI_L2_DCM},

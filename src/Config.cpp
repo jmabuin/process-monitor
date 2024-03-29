@@ -48,9 +48,6 @@ Config Config::from_json_file(const std::string& config_json_file) {
     }
 
     if (data.contains("command")) {
-        /*for(const auto& current_command_item : data["command"]) {
-            new_config.Command.push_back(current_command_item);
-        }*/
         new_config.Command = data["command"];
     }
 

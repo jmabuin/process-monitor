@@ -11,7 +11,7 @@
 #include "Config.h"
 #include "EnergyMeasure.h"
 
-#define MAX_RAPL_EVENTS 64
+constexpr size_t MAX_RAPL_EVENTS = 64;
 
 class EnergyInfo {
 public:
