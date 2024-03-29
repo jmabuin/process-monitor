@@ -87,7 +87,9 @@ add_library(libprocess-monitor include/Config.h
         include/ProcessUtils.h
         src/StringUtils.cpp
         include/StringUtils.h
-        include/IoMeasure.h)
+        include/IoMeasure.h
+        src/Runner.cpp
+        include/Runner.h)
 
 target_link_libraries(libprocess-monitor ${PAPI_STATIC_LIBRARY})
 target_link_libraries(libprocess-monitor ${PFS_STATIC_LIBRARY})
