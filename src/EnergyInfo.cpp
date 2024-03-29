@@ -251,7 +251,7 @@ void EnergyInfo::write_results_to_file(const std::vector<std::string>& event_nam
     }
 
     for(const auto& event_name : event_names_vector) {
-        std::string file_name = std::to_string(this->Pid) + "_" + event_name + "_cpu.csv";
+        std::string file_name = std::to_string(this->Pid) + "_" + event_name + ".csv";
 
         if (this->debug_mode) {
             std::cout << "[" << EnergyInfo::class_name << "] " << event_name << " file: " << *this->output_folder + "/" + file_name << std::endl;

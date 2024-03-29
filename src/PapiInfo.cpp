@@ -176,7 +176,7 @@ void PapiInfo::write_results_to_file() {
     }
 
     for(const auto& event_name : this->configuration->PapiEvents) {
-        std::string file_name = std::to_string(this->Pid) + "_" +event_name + "_cpu.csv";
+        std::string file_name = std::to_string(this->Pid) + "_" +event_name + ".csv";
 
         if (this->debug_mode) {
             std::cout << "[" << PapiInfo::class_name << "] " << event_name << " file: " << *this->output_folder + "/" + file_name << std::endl;

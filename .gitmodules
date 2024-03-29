@@ -1,3 +1,6 @@
 [submodule "third-party/pfs"]
 	path = third-party/pfs
 	url = https://github.com/dtrugman/pfs.git
+[submodule "third-party/papi"]
+	path = third-party/papi
+	url = https://github.com/icl-utk-edu/papi.git

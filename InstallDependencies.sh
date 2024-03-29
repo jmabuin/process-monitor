@@ -32,10 +32,8 @@ fi
 echo "Installing PAPI ..."
 cd third-party
 
-if ! test -d papi; then
-  curl https://icl.utk.edu/projects/papi/downloads/papi-7.1.0.tar.gz --output papi-7.1.0.tar.gz
-  tar xzvf papi-7.1.0.tar.gz
-  cd papi-7.1.0/src
+if test -d papi; then
+  cd papi/src
   ./configure --with-components="rapl"
   make
 fi
@@ -43,5 +41,5 @@ fi
 cd $CURRENT_FOLDER
 
 if ! test -f third-party/libs/libpapi.a; then
-  cp third-party/papi-7.1.0/src/libpapi.a third-party/libs/
+  cp third-party/papi/src/libpapi.a third-party/libs/
 fi
