@@ -43,7 +43,7 @@ void PapiInfo::run() {
         return;
     }
 
-    for(const auto& event_str_item : this->configuration->PapiEvents) {
+    for(const auto& event_str_item : this->configuration->papi_events) {
         int val = PapiMapEvents::PapiMapEvents.at(event_str_item);
         events_vector.push_back(val);
 
@@ -125,7 +125,7 @@ void PapiInfo::run() {
             exit(EXIT_FAILURE);
         }
 
-        if (!this->configuration->AccumulatePapi) {
+        if (!this->configuration->accumulate_papi) {
             ret_val = PAPI_reset(EventSet);
             if (ret_val != PAPI_OK) {
                 std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_reset: " << PAPI_strerror(ret_val) << std::endl;
@@ -135,16 +135,16 @@ void PapiInfo::run() {
 
         // Save results
         for (int i = 0; i<num_events ; i++) {
-            auto new_measure = PapiMeasure {total_measures * this->configuration->MeasureInterval, papi_counters[i] };
-            this->results.at(this->configuration->PapiEvents[i]).push_back(new_measure);
+            auto new_measure = PapiMeasure {total_measures * this->configuration->measure_interval, papi_counters[i] };
+            this->results.at(this->configuration->papi_events[i]).push_back(new_measure);
             if (this->debug_mode) {
-                std::cout << "[" << this->class_name << "][" << __func__ << "] Adding to counter " << this->configuration->PapiEvents[i] << " Value " << new_measure.time_seconds << " s. => " << new_measure.quantity << std::endl;
+                std::cout << "[" << this->class_name << "][" << __func__ << "] Adding to counter " << this->configuration->papi_events[i] << " Value " << new_measure.time_seconds << " s. => " << new_measure.quantity << std::endl;
             }
         }
 
         total_measures++;
 
-        sleep(this->configuration->MeasureInterval);
+        sleep(this->configuration->measure_interval);
     }
 
     //Finishing
@@ -175,7 +175,7 @@ void PapiInfo::write_results_to_file() {
         std::cout << "[" << PapiInfo::class_name << "] Writing PAPI Results at: " << *this->output_folder << std::endl;
     }
 
-    for(const auto& event_name : this->configuration->PapiEvents) {
+    for(const auto& event_name : this->configuration->papi_events) {
         std::string file_name = std::to_string(this->Pid) + "_" +event_name + ".csv";
 
         if (this->debug_mode) {

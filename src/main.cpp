@@ -35,16 +35,16 @@ int main(int argc, char *argv[]) {
                 usage();
                 return EXIT_SUCCESS;
             case 'c' :
-                input_args.ConfigFile = optarg;
+                input_args.config_file = optarg;
                 break;
             case 'd':
-                input_args.DebugMode = true;
+                input_args.debug_mode = true;
                 break;
             case 'p':
-                input_args.Pid = std::stoi(optarg);
+                input_args.pid = std::stoi(optarg);
                 break;
             case 'o':
-                input_args.OutputFolder = optarg;
+                input_args.output_folder = optarg;
                 break;
             default:
                 break;

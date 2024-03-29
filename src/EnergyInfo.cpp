@@ -190,7 +190,7 @@ void EnergyInfo::run() {
     while(kill(this->Pid,0) == 0){
 
         start_time=PAPI_get_real_nsec();
-        sleep(this->configuration->MeasureInterval);
+        sleep(this->configuration->measure_interval);
 
         //Read measures and store them
         if ((ret_val = PAPI_read(EventSet, values)) != PAPI_OK) {
@@ -198,7 +198,7 @@ void EnergyInfo::run() {
             exit(EXIT_FAILURE);
         }
 
-        if (!this->configuration->AccumulateEnergy) {
+        if (!this->configuration->accumulate_energy) {
             ret_val = PAPI_reset(EventSet);
             if (ret_val != PAPI_OK) {
                 std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_reset: " << PAPI_strerror(ret_val) << std::endl;
@@ -223,7 +223,7 @@ void EnergyInfo::run() {
                 }
             }
         }
-        sleep(this->configuration->MeasureInterval);
+        sleep(this->configuration->measure_interval);
     }
 
     //Finishing

@@ -71,11 +71,11 @@ void ProcessInfo::run() {
 
         if (old_time != 0) {
             auto used_time_seconds = double(new_time - old_time) / double(tic);
-            auto process_cpu_percentage = used_time_seconds * 100.0 / this->configuration->MeasureInterval;
+            auto process_cpu_percentage = used_time_seconds * 100.0 / this->configuration->measure_interval;
 
             if (this->debug_mode) {
                 std::cout << "[" << this->class_name << "] PID: " << this->Pid << ", command: " << task.get_comm() << ", Memory: "
-                          << get_mem_for_units(stats_mem.resident) << this->configuration->MeasureMemoryUnits << ". CPU: " << process_cpu_percentage << "%." << std::endl;
+                          << get_mem_for_units(stats_mem.resident) << this->configuration->measure_memory_units << ". CPU: " << process_cpu_percentage << "%." << std::endl;
             }
 
             this->cpu_measures.push_back(CpuMeasure{seconds, process_cpu_percentage});
@@ -88,7 +88,7 @@ void ProcessInfo::run() {
         old_time = new_time;
 
         // IO
-        if (this->configuration->MeasureIo) {
+        if (this->configuration->measure_io) {
             auto stats_io = task.get_io();
             auto current_reads = stats_io.syscr;
             auto current_writes = stats_io.syscw;
@@ -96,7 +96,7 @@ void ProcessInfo::run() {
             auto io_read_measure = IoMeasure{seconds, current_reads};
             auto io_write_measure = IoMeasure{seconds, current_writes};
 
-            if (!this->configuration->AccumulateIo) {
+            if (!this->configuration->accumulate_io) {
                 auto num_reads = current_reads - old_reads;
                 auto num_writes = current_writes - old_writes;
 
@@ -112,8 +112,8 @@ void ProcessInfo::run() {
 
         }
 
-        seconds += this->configuration->MeasureInterval;
-        sleep(this->configuration->MeasureInterval);
+        seconds += this->configuration->measure_interval;
+        sleep(this->configuration->measure_interval);
 
     }
 
@@ -189,19 +189,19 @@ double ProcessInfo::get_mem_for_units(size_t num) const {
     auto page_size = sysconf(_SC_PAGE_SIZE);
 
     auto in_bytes = double(num * page_size);
-    if (this->configuration->MeasureMemoryUnits == MemoryUnitsB) {
+    if (this->configuration->measure_memory_units == MemoryUnitsB) {
         return in_bytes;
     }
-    else if (this->configuration->MeasureMemoryUnits == MemoryUnitsKB) {
+    else if (this->configuration->measure_memory_units == MemoryUnitsKB) {
         return in_bytes / 1024.0;
     }
-    else if (this->configuration->MeasureMemoryUnits == MemoryUnitsMB) {
+    else if (this->configuration->measure_memory_units == MemoryUnitsMB) {
         return in_bytes / 1024.0 / 1024.0;
     }
-    else if (this->configuration->MeasureMemoryUnits == MemoryUnitsGB) {
+    else if (this->configuration->measure_memory_units == MemoryUnitsGB) {
         return in_bytes / 1024.0 / 1024.0 / 1024.0;
     }
-    else if (this->configuration->MeasureMemoryUnits == MemoryUnitsTB) {
+    else if (this->configuration->measure_memory_units == MemoryUnitsTB) {
         return in_bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0;
     }
 
