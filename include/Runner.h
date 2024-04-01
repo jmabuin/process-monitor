@@ -6,6 +6,7 @@
 #define PROCESS_MONITOR_RUNNER_H
 
 
+#include <memory>
 #include "Args.h"
 #include "ProcessInfo.h"
 #include "PapiInfo.h"
@@ -15,9 +16,7 @@ class Runner {
 public:
     Args input_args;
 
-    std::unique_ptr<ProcessInfo> process_info;
-    std::unique_ptr<PapiInfo> papi_info;
-    std::unique_ptr<EnergyInfo> energy_info;
+    std::vector<std::unique_ptr<ISourceInfo>> info_threads;
 
     explicit Runner(Args input_args);
 

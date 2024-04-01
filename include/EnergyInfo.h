@@ -10,10 +10,11 @@
 #include <unordered_map>
 #include "Config.h"
 #include "EnergyMeasure.h"
+#include "ISourceInfo.h"
 
 constexpr size_t MAX_RAPL_EVENTS = 64;
 
-class EnergyInfo {
+class EnergyInfo : public ISourceInfo {
 public:
 
     const std::string class_name = "EnergyInfo";
@@ -22,13 +23,11 @@ public:
     std::string *output_folder;
     Config *configuration;
 
-    std::thread running_thread;
-
     std::unordered_map<std::string, std::vector<EnergyMeasure>> results;
 
     explicit EnergyInfo(int pid, Config *config, std::string *output_folder, bool debug_mode);
-    void run_thread();
-    void run();
+    void run_thread() final;
+    void run() final;
     void write_results_to_file(const std::vector<std::string>& event_names_vector);
 };
 

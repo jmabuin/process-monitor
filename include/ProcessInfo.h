@@ -11,8 +11,9 @@
 #include "MemoryMeasure.h"
 #include "IoMeasure.h"
 #include "Config.h"
+#include "ISourceInfo.h"
 
-class ProcessInfo {
+class ProcessInfo : public ISourceInfo {
 
 public:
 
@@ -26,11 +27,9 @@ public:
     std::vector<IoMeasure> num_io_read_operations;
     std::vector<IoMeasure> num_io_write_operations;
 
-    std::thread running_thread;
-
     explicit ProcessInfo(int pid, Config *config, std::string *output_folder, bool debug_mode);
-    void run_thread();
-    void run();
+    void run_thread() final;
+    void run() final;
     void write_results_to_file() const;
     [[nodiscard]] double get_mem_for_units(size_t num) const;
 

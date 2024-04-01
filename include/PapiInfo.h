@@ -10,8 +10,9 @@
 #include <unordered_map>
 #include "Config.h"
 #include "PapiMeasure.h"
+#include "ISourceInfo.h"
 
-class PapiInfo {
+class PapiInfo : public ISourceInfo {
 public:
 
     const std::string class_name = "PapiInfo";
@@ -20,14 +21,12 @@ public:
     std::string *output_folder;
     Config *configuration;
 
-    std::thread running_thread;
-
     std::unordered_map<std::string, std::vector<PapiMeasure>> results;
 
     explicit PapiInfo(int pid, Config *config, std::string *output_folder, bool debug_mode);
     static void print_device_info();
-    void run_thread();
-    void run();
+    void run_thread() final;
+    void run() final;
     void write_results_to_file();
 };
 

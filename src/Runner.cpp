@@ -128,44 +128,29 @@ void Runner::RunThreads(Config *configuration) {
     this->CreateOutputFolder();
 
     if (configuration->measure_cpu && configuration->measure_memory) {
-        this->process_info = std::make_unique<ProcessInfo>(this->input_args.pid, configuration, &this->input_args.output_folder,
-                                                           this->input_args.debug_mode);
+        this->info_threads.push_back(std::make_unique<ProcessInfo>(this->input_args.pid, configuration, &this->input_args.output_folder,
+                                                                   this->input_args.debug_mode));
     }
 
     if (configuration->measure_papi) {
-        this->papi_info = std::make_unique<PapiInfo>(this->input_args.pid, configuration, &this->input_args.output_folder,
-                                                     this->input_args.debug_mode);
+        this->info_threads.push_back(std::make_unique<PapiInfo>(this->input_args.pid, configuration, &this->input_args.output_folder,
+                                                     this->input_args.debug_mode));
     }
 
     if (configuration->measure_energy) {
-        this->energy_info = std::make_unique<EnergyInfo>(this->input_args.pid, configuration, &this->input_args.output_folder,
-                                                         this->input_args.debug_mode);
+        this->info_threads.push_back(std::make_unique<EnergyInfo>(this->input_args.pid, configuration, &this->input_args.output_folder,
+                                                                this->input_args.debug_mode));
     }
 
-    if (this->process_info != nullptr) {
-        this->process_info->run_thread();
+    for (const auto& info: this->info_threads) {
+        info->run_thread();
     }
 
-    if (this->papi_info != nullptr) {
-        this->papi_info->run_thread();
-    }
-
-    if (this->energy_info != nullptr) {
-        this->energy_info->run_thread();
-    }
 }
 
 void Runner::WaitForThreads() const {
-    if (this->process_info != nullptr) {
-        this->process_info->running_thread.join();
-    }
-
-    if (this->papi_info != nullptr) {
-        this->papi_info->running_thread.join();
-    }
-
-    if (this->energy_info != nullptr) {
-        this->energy_info->running_thread.join();
+    for (const auto& info: this->info_threads) {
+        info->running_thread.join();
     }
 }
 
