@@ -10,33 +10,30 @@ echo "Creating third-party folders..."
 mkdir -p third-party
 mkdir -p third-party/libs
 
-# For libproc2
+# For lpfs
 
-echo "Installing libproc2 ..."
+echo "Installing pfs ..."
 cd third-party
 
-if ! test -d procps; then
-  git clone -b v4.0.4 https://gitlab.com/procps-ng/procps.git
-  cd procps
-  ./autogen.sh
-  ./configure
+if test -d pfs; then
+  cd pfs
+  mkdir build && cd build
+  cmake ..
   make
 fi
 
 cd $CURRENT_FOLDER
 
-if ! test -f third-party/libs/libproc2.a; then
-  cp third-party/procps/library/.libs/libproc2.a third-party/libs/
+if ! test -f third-party/libs/libpfs.a; then
+  cp third-party/pfs/build/lib/libpfs.a third-party/libs/
 fi
 
 # For PAPI
 echo "Installing PAPI ..."
 cd third-party
 
-if ! test -d papi; then
-  curl https://icl.utk.edu/projects/papi/downloads/papi-7.1.0.tar.gz --output papi-7.1.0.tar.gz
-  tar xzvf papi-7.1.0.tar.gz
-  cd papi-7.1.0/src
+if test -d papi; then
+  cd papi/src
   ./configure --with-components="rapl"
   make
 fi
@@ -44,5 +41,5 @@ fi
 cd $CURRENT_FOLDER
 
 if ! test -f third-party/libs/libpapi.a; then
-  cp third-party/papi-7.1.0/src/libpapi.a third-party/libs/
+  cp third-party/papi/src/libpapi.a third-party/libs/
 fi

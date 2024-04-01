@@ -1,4 +1,5 @@
-/third-party
+/third-party/libs
+/third-party/pfs/build
 build
 cmake-build-debug
 .idea

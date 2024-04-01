@@ -19,11 +19,10 @@ extern "C"
 #include "PapiMapEvents.h"
 
 
-PapiInfo::PapiInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) {
-    this->Pid = pid;
-    this->configuration = config;
-    this->output_folder = output_folder;
-    this->debug_mode = debug_mode;
+PapiInfo::PapiInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) : pid(pid),
+                                                                                           debug_mode(debug_mode),
+                                                                                           output_folder(output_folder),
+                                                                                           configuration(config) {
 }
 
 void PapiInfo::run_thread() {
@@ -32,19 +31,19 @@ void PapiInfo::run_thread() {
 
 void PapiInfo::run() {
     int EventSet = PAPI_NULL;
-    int ret_val = 0;
+    int ret_val;
     std::vector<int> events_vector;
     PAPI_option_t opt;
 
-    std::cout << "[" << this->class_name << "] Started PAPI info. Looking for PID: " << this->Pid << std::endl;
+    std::cout << "[" << this->class_name << "] Started PAPI info. Looking for PID: " << this->pid << std::endl;
 
     // No Process, we leave
-    if(kill(this->Pid,0) != 0) {
-        std::cout << "[" << this->class_name << "] No process for PID: " << this->Pid << ". Leaving" << std::endl;
+    if(kill(this->pid, 0) != 0) {
+        std::cout << "[" << this->class_name << "] No process for PID: " << this->pid << ". Leaving" << std::endl;
         return;
     }
 
-    for(const auto& event_str_item : this->configuration->PapiEvents) {
+    for(const auto& event_str_item : this->configuration->papi_events) {
         int val = PapiMapEvents::PapiMapEvents.at(event_str_item);
         events_vector.push_back(val);
 
@@ -59,7 +58,7 @@ void PapiInfo::run() {
     int events[events_vector.size()];
     std::copy(events_vector.begin(), events_vector.end(), events);
 
-    int num_events = (int)events_vector.size();
+    auto num_events = (int)events_vector.size();
     long long int papi_counters[num_events];
 
     if ((ret_val = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT){
@@ -68,7 +67,7 @@ void PapiInfo::run() {
     }
 
     // Currently, from PAPI, only PAPI_GRN_SYS and PAPI_GRN_THR are supported.
-    /*if ((ret_val = PAPI_set_cmp_granularity(PAPI_GRN_THR,0)) != PAPI_OK){
+    /* if ((ret_val = PAPI_set_cmp_granularity(PAPI_GRN_THR,0)) != PAPI_OK){
         fprintf(stderr,"[%s] Error assigning events granularity %s\n",__func__, PAPI_strerror(ret_val));
         exit(-1);
     }*/
@@ -101,7 +100,7 @@ void PapiInfo::run() {
     }
 
     //Attach to PID
-    if ((ret_val = PAPI_attach(EventSet, this->Pid)) != PAPI_OK){
+    if ((ret_val = PAPI_attach(EventSet, this->pid)) != PAPI_OK){
         std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_attach: " << PAPI_strerror(ret_val) << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -120,14 +119,15 @@ void PapiInfo::run() {
 
     unsigned int total_measures = 0;
 
-    while(kill(this->Pid,0) == 0){
+    while(kill(this->pid, 0) == 0){
         if ((ret_val = PAPI_read(EventSet, papi_counters)) != PAPI_OK) {
             std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_read: " << PAPI_strerror(ret_val) << std::endl;
             exit(EXIT_FAILURE);
         }
 
-        if (!this->configuration->AccumulatePapi) {
-            if ((ret_val = PAPI_reset(EventSet)) != PAPI_OK) {
+        if (!this->configuration->accumulate_papi) {
+            ret_val = PAPI_reset(EventSet);
+            if (ret_val != PAPI_OK) {
                 std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_reset: " << PAPI_strerror(ret_val) << std::endl;
                 exit(EXIT_FAILURE);
             }
@@ -135,16 +135,16 @@ void PapiInfo::run() {
 
         // Save results
         for (int i = 0; i<num_events ; i++) {
-            auto new_measure = PapiMeasure {total_measures * this->configuration->MeasureInterval, papi_counters[i] };
-            this->results.at(this->configuration->PapiEvents[i]).push_back(new_measure);
+            auto new_measure = PapiMeasure {total_measures * this->configuration->measure_interval, papi_counters[i] };
+            this->results.at(this->configuration->papi_events[i]).push_back(new_measure);
             if (this->debug_mode) {
-                std::cout << "[" << this->class_name << "][" << __func__ << "] Adding to counter " << this->configuration->PapiEvents[i] << " Value " << new_measure.time_seconds << " s. => " << new_measure.quantity << std::endl;
+                std::cout << "[" << this->class_name << "][" << __func__ << "] Adding to counter " << this->configuration->papi_events[i] << " Value " << new_measure.time_seconds << " s. => " << new_measure.quantity << std::endl;
             }
         }
 
         total_measures++;
 
-        sleep(this->configuration->MeasureInterval);
+        sleep(this->configuration->measure_interval);
     }
 
     //Finishing
@@ -175,8 +175,8 @@ void PapiInfo::write_results_to_file() {
         std::cout << "[" << PapiInfo::class_name << "] Writing PAPI Results at: " << *this->output_folder << std::endl;
     }
 
-    for(const auto& event_name : this->configuration->PapiEvents) {
-        std::string file_name = std::to_string(this->Pid) + "_" +event_name + "_cpu.csv";
+    for(const auto& event_name : this->configuration->papi_events) {
+        std::string file_name = std::to_string(this->pid) + "_" + event_name + ".csv";
 
         if (this->debug_mode) {
             std::cout << "[" << PapiInfo::class_name << "] " << event_name << " file: " << *this->output_folder + "/" + file_name << std::endl;
@@ -196,31 +196,30 @@ void PapiInfo::write_results_to_file() {
 
 void PapiInfo::print_device_info() {
 
-    const PAPI_hw_info_t *hwinfo = nullptr;
-    int ret_val = 0;
+    const PAPI_hw_info_t *hw_info;
 
-    if ((ret_val = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT) {
+    if (int ret_val = PAPI_library_init(PAPI_VER_CURRENT); ret_val != PAPI_VER_CURRENT) {
         std::cerr << "[PapiInfo] [" << __func__ << "] Error initializing PAPI: " << PAPI_strerror(ret_val) << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    if ((hwinfo = PAPI_get_hardware_info()) == nullptr) {
+    if ((hw_info = PAPI_get_hardware_info()) == nullptr) {
         std::cerr << "[PapiInfo] [" << __func__ << "] Error in PAPI_get_hardware_info." << std::endl;
         exit(EXIT_FAILURE);
     }
 
     printf("==========================DEVICE INFO==========================\n");
     printf("Vendor                                : %s (%u,0x%x)\n",
-           hwinfo->vendor_string,
-           hwinfo->vendor,
-           hwinfo->vendor);
-    printf("Name                                  : %s %s\n", hwinfo->model_string, hwinfo->vendor_string);
+           hw_info->vendor_string,
+           hw_info->vendor,
+           hw_info->vendor);
+    printf("Name                                  : %s %s\n", hw_info->model_string, hw_info->vendor_string);
     printf("CPUID                                 : Family/Model/Stepping %u/%u/%u 0x%02x/0x%02x/0x%02x\n",
-           hwinfo->cpuid_family, hwinfo->model, hwinfo->cpuid_stepping, hwinfo->cpuid_family, hwinfo->model,
-           hwinfo->cpuid_stepping);
-    printf("Sockets                               : %u\n", hwinfo->sockets);
-    printf("Total threads                         : %u\n", hwinfo->totalcpus);
-    printf("Cores per socket                      : %u\n", hwinfo->cores);
-    printf("SMT threads per core                  : %u\n", hwinfo->threads);
+           hw_info->cpuid_family, hw_info->model, hw_info->cpuid_stepping, hw_info->cpuid_family, hw_info->model,
+           hw_info->cpuid_stepping);
+    printf("Sockets                               : %u\n", hw_info->sockets);
+    printf("Total threads                         : %u\n", hw_info->totalcpus);
+    printf("Cores per socket                      : %u\n", hw_info->cores);
+    printf("SMT threads per core                  : %u\n", hw_info->threads);
     printf("===============================================================\n");
 }

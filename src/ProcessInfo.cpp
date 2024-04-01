@@ -15,22 +15,29 @@ extern "C"
 
 #include <iostream>
 #include <fstream>
+#include <csignal>
+#include "pfs/task.hpp"
+#include "pfs/procfs.hpp"
 
+
+const std::string ProcessInfo::MemoryUnitsB = "B";
+const std::string ProcessInfo::MemoryUnitsKB = "KB";
+const std::string ProcessInfo::MemoryUnitsMB = "MB";
+const std::string ProcessInfo::MemoryUnitsGB = "GB";
+const std::string ProcessInfo::MemoryUnitsTB = "TB";
 
 long get_uptime() {
     struct sysinfo s_info{};
-    int error = sysinfo(&s_info);
-    if (error != 0) {
+    if (int error = sysinfo(&s_info); error != 0) {
         printf("code error = %d\n", error);
     }
     return s_info.uptime;
 }
 
-ProcessInfo::ProcessInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) {
-    this->Pid = pid;
-    this->configuration = config;
-    this->output_folder = output_folder;
-    this->debug_mode = debug_mode;
+ProcessInfo::ProcessInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) : pid(pid),
+                                                                                                 debug_mode(debug_mode),
+                                                                                                 output_folder(output_folder),
+                                                                                                 configuration(config) {
 }
 
 void ProcessInfo::run_thread() {
@@ -39,119 +46,90 @@ void ProcessInfo::run_thread() {
 
 void ProcessInfo::run() {
 
-    bool stop_run = false;
+    if (kill(this->pid, 0) != 0) {
+        std::cerr << "No process with PID " << this->pid << std::endl;
+        return;
+    }
 
-    //Variables to iterate over the processes in this node
-    PROCTAB *proc_tab;
+    auto task = pfs::procfs().get_task(this->pid);
 
-    //Variables to calculate pcpu -> % CPU
-    unsigned long long seconds;
-    unsigned pcpu;
-    unsigned long long used_jiffies;
-
-    unsigned long old_cpu = 0, new_cpu, seconds_since_boot;
-    long Hertz = procps_hertz_get();
-    double current_cpu;
+    // Variables to calculate CPU
+    auto tic = sysconf (_SC_CLK_TCK);
+    unsigned long old_time = 0;
+    unsigned long long seconds = 0;
 
     // Variables to calculate IO reads and writes
-    unsigned long old_reads = 0, old_writes = 0;
+    unsigned long old_reads = 0;
+    unsigned long old_writes = 0;
 
-    std::cout << "[" << this->class_name << "] Started reading processes table. Looking for PID: " << this->Pid << std::endl;
-    while (!stop_run) {
-        seconds_since_boot = get_uptime();
+    while(kill(this->pid, 0) == 0) {
+        // CPU and Mem
+        auto stats = task.get_stat();
+        auto stats_mem = task.get_statm();
 
-        proc_tab = openproc(
-                PROC_FILLMEM | PROC_FILLSTAT | PROC_FILLSTATUS | PROC_FILLUSR | PROC_FILLENV | PROC_FILLARG | PROC_FILLIO);
+        auto new_time = stats.utime + stats.stime;
 
-        auto *proc_info = (proc_t *) calloc(1, sizeof(proc_t));
+        if (old_time != 0) {
+            auto used_time_seconds = double(new_time - old_time) / double(tic);
+            auto process_cpu_percentage = used_time_seconds * 100.0 / this->configuration->measure_interval;
 
-        bool found = false;
-
-        while ((proc_info = readproc(proc_tab, proc_info)) != nullptr) {
-            if (proc_info->tid == this->Pid) {
-                pcpu = 0;
-                used_jiffies = proc_info->utime + proc_info->stime;
-                seconds = seconds_since_boot - proc_info->start_time / Hertz;
-
-                if (this->debug_mode) {
-                    std::cout << "[" << this->class_name << "] Jiffies: " << used_jiffies << ". Seconds: " << seconds << ". Seconds since boot: "
-                              << seconds_since_boot << ". Hertz: " << Hertz << std::endl;
-                }
-
-                if (seconds) {
-                    pcpu = (used_jiffies * 1000ULL / Hertz) / seconds;
-                }
-
-                if (old_cpu == 0) {
-                    current_cpu = pcpu;
-                    old_cpu = used_jiffies * 1000ULL / Hertz;
-                } else {
-                    new_cpu = used_jiffies * 1000ULL / Hertz;
-                    double cpu2 = (double) ((double) new_cpu / 10U) + (double) (new_cpu % 10U) / 10.0;
-                    double cpu1 = (double) ((double) old_cpu / 10U) + (double) (old_cpu % 10U) / 10.0;
-
-                    current_cpu = (cpu2 - cpu1) / this->configuration->MeasureInterval;
-                    old_cpu = new_cpu;
-                }
-
-                if (this->debug_mode) {
-                    std::cout << "[" << this->class_name << "] PID: " << proc_info->tid << ", command: " << proc_info->cmd << ", Memory: "
-                              << proc_info->vm_rss << " Kb. Start time: " << proc_info->start_time << " s. CPU:"
-                              << current_cpu << "%" << std::endl;
-                }
-
-                this->cpu_measures.push_back(CpuMeasure{seconds, current_cpu});
-                this->memory_measures.push_back(MemoryMeasure{seconds, proc_info->vm_rss});
-
-                if (this->configuration->MeasureIo) {
-                    auto current_reads = proc_info->syscr;
-                    auto current_writes = proc_info->syscw;
-
-                    auto io_read_measure = IoMeasure{seconds, current_reads};
-                    auto io_write_measure = IoMeasure{seconds, current_writes};
-
-                    if (!this->configuration->AccumulateIo) {
-                        auto num_reads = current_reads - old_reads;
-                        auto num_writes = current_writes - old_writes;
-
-                        io_read_measure.quantity = num_reads;
-                        io_write_measure.quantity = num_writes;
-
-                        old_reads = current_reads;
-                        old_writes = current_writes;
-                    }
-
-                    this->num_io_read_operations.push_back(io_read_measure);
-                    this->num_io_write_operations.push_back(io_write_measure);
-
-                }
-                found = true;
+            if (this->debug_mode) {
+                std::cout << "[" << this->class_name << "] PID: " << this->pid << ", command: " << task.get_comm() << ", Memory: "
+                          << get_mem_for_units(stats_mem.resident) << this->configuration->measure_memory_units << ". CPU: " << process_cpu_percentage << "%." << std::endl;
             }
+
+            this->cpu_measures.push_back(CpuMeasure{seconds, process_cpu_percentage});
+
         }
 
-        free(proc_info);
-        closeproc(proc_tab);
+        double m = get_mem_for_units(stats_mem.resident);
+        this->memory_measures.push_back(MemoryMeasure{seconds, m});
 
-        if (!found) {
-            stop_run = true;
-        } else {
-            sleep(this->configuration->MeasureInterval);
+        old_time = new_time;
+
+        // IO
+        if (this->configuration->measure_io) {
+            auto stats_io = task.get_io();
+            auto current_reads = stats_io.syscr;
+            auto current_writes = stats_io.syscw;
+
+            auto io_read_measure = IoMeasure{seconds, current_reads};
+            auto io_write_measure = IoMeasure{seconds, current_writes};
+
+            if (!this->configuration->accumulate_io) {
+                auto num_reads = current_reads - old_reads;
+                auto num_writes = current_writes - old_writes;
+
+                io_read_measure.quantity = num_reads;
+                io_write_measure.quantity = num_writes;
+
+                old_reads = current_reads;
+                old_writes = current_writes;
+            }
+
+            this->num_io_read_operations.push_back(io_read_measure);
+            this->num_io_write_operations.push_back(io_write_measure);
+
         }
+
+        seconds += this->configuration->measure_interval;
+        sleep(this->configuration->measure_interval);
+
     }
 
     if (!this->cpu_measures.empty() || !this->memory_measures.empty()) {
         this->write_results_to_file();
     }
     else {
-        std::cout << "[" << this->class_name << "] No values found for given PID " <<  this->Pid << std::endl;
+        std::cout << "[" << this->class_name << "] No values found for given PID " << this->pid << std::endl;
     }
 
 }
 
-void ProcessInfo::write_results_to_file() {
+void ProcessInfo::write_results_to_file() const {
 
-    std::string cpu_file_name = std::to_string(this->Pid) + "_cpu.csv";
-    std::string memory_file_name = std::to_string(this->Pid) + "_memory.csv";
+    std::string cpu_file_name = std::to_string(this->pid) + "_cpu.csv";
+    std::string memory_file_name = std::to_string(this->pid) + "_memory.csv";
 
     if (this->debug_mode) {
         std::cout << "[" << ProcessInfo::class_name << "] Writing Process Results at: " << *this->output_folder << std::endl;
@@ -180,8 +158,8 @@ void ProcessInfo::write_results_to_file() {
     memory_file.close();
 
     // Write IO measures if needed
-    std::string io_reads_file_name = std::to_string(this->Pid) + "_io_reads.csv";
-    std::string io_writes_file_name = std::to_string(this->Pid) + "_io_writes.csv";
+    std::string io_reads_file_name = std::to_string(this->pid) + "_io_reads.csv";
+    std::string io_writes_file_name = std::to_string(this->pid) + "_io_writes.csv";
 
     if (!this->num_io_read_operations.empty()) {
         std::ofstream io_reads_file;
@@ -204,4 +182,28 @@ void ProcessInfo::write_results_to_file() {
 
         io_writes_file.close();
     }
+}
+
+double ProcessInfo::get_mem_for_units(size_t num) const {
+
+    auto page_size = sysconf(_SC_PAGE_SIZE);
+
+    auto in_bytes = double(num * page_size);
+    if (this->configuration->measure_memory_units == MemoryUnitsB) {
+        return in_bytes;
+    }
+    else if (this->configuration->measure_memory_units == MemoryUnitsKB) {
+        return in_bytes / 1024.0;
+    }
+    else if (this->configuration->measure_memory_units == MemoryUnitsMB) {
+        return in_bytes / 1024.0 / 1024.0;
+    }
+    else if (this->configuration->measure_memory_units == MemoryUnitsGB) {
+        return in_bytes / 1024.0 / 1024.0 / 1024.0;
+    }
+    else if (this->configuration->measure_memory_units == MemoryUnitsTB) {
+        return in_bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0;
+    }
+
+    return 0.0;
 }
