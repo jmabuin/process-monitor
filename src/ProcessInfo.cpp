@@ -34,7 +34,7 @@ long get_uptime() {
     return s_info.uptime;
 }
 
-ProcessInfo::ProcessInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) : Pid(pid),
+ProcessInfo::ProcessInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) : pid(pid),
                                                                                                  debug_mode(debug_mode),
                                                                                                  output_folder(output_folder),
                                                                                                  configuration(config) {
@@ -46,12 +46,12 @@ void ProcessInfo::run_thread() {
 
 void ProcessInfo::run() {
 
-    if (kill(this->Pid,0) != 0) {
-        std::cerr << "No process with PID " << this->Pid << std::endl;
+    if (kill(this->pid, 0) != 0) {
+        std::cerr << "No process with PID " << this->pid << std::endl;
         return;
     }
 
-    auto task = pfs::procfs().get_task(this->Pid);
+    auto task = pfs::procfs().get_task(this->pid);
 
     // Variables to calculate CPU
     auto tic = sysconf (_SC_CLK_TCK);
@@ -62,7 +62,7 @@ void ProcessInfo::run() {
     unsigned long old_reads = 0;
     unsigned long old_writes = 0;
 
-    while(kill(this->Pid,0) == 0) {
+    while(kill(this->pid, 0) == 0) {
         // CPU and Mem
         auto stats = task.get_stat();
         auto stats_mem = task.get_statm();
@@ -74,7 +74,7 @@ void ProcessInfo::run() {
             auto process_cpu_percentage = used_time_seconds * 100.0 / this->configuration->measure_interval;
 
             if (this->debug_mode) {
-                std::cout << "[" << this->class_name << "] PID: " << this->Pid << ", command: " << task.get_comm() << ", Memory: "
+                std::cout << "[" << this->class_name << "] PID: " << this->pid << ", command: " << task.get_comm() << ", Memory: "
                           << get_mem_for_units(stats_mem.resident) << this->configuration->measure_memory_units << ". CPU: " << process_cpu_percentage << "%." << std::endl;
             }
 
@@ -121,15 +121,15 @@ void ProcessInfo::run() {
         this->write_results_to_file();
     }
     else {
-        std::cout << "[" << this->class_name << "] No values found for given PID " <<  this->Pid << std::endl;
+        std::cout << "[" << this->class_name << "] No values found for given PID " << this->pid << std::endl;
     }
 
 }
 
 void ProcessInfo::write_results_to_file() const {
 
-    std::string cpu_file_name = std::to_string(this->Pid) + "_cpu.csv";
-    std::string memory_file_name = std::to_string(this->Pid) + "_memory.csv";
+    std::string cpu_file_name = std::to_string(this->pid) + "_cpu.csv";
+    std::string memory_file_name = std::to_string(this->pid) + "_memory.csv";
 
     if (this->debug_mode) {
         std::cout << "[" << ProcessInfo::class_name << "] Writing Process Results at: " << *this->output_folder << std::endl;
@@ -158,8 +158,8 @@ void ProcessInfo::write_results_to_file() const {
     memory_file.close();
 
     // Write IO measures if needed
-    std::string io_reads_file_name = std::to_string(this->Pid) + "_io_reads.csv";
-    std::string io_writes_file_name = std::to_string(this->Pid) + "_io_writes.csv";
+    std::string io_reads_file_name = std::to_string(this->pid) + "_io_reads.csv";
+    std::string io_writes_file_name = std::to_string(this->pid) + "_io_writes.csv";
 
     if (!this->num_io_read_operations.empty()) {
         std::ofstream io_reads_file;

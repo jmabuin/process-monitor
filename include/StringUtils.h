@@ -8,8 +8,16 @@
 
 #include <string>
 
+/// @brief Class with auxiliary functions.
 class StringUtils {
 public:
+    /**
+     * @brief Function to replace all instances of a substring in a given string.
+     * @param in The input string.
+     * @param from The substring to be replaced.
+     * @param to The substring replacing the old one.
+     * @return The resulting string.
+     */
     static std::string ReplaceAll( std::string in, std::string_view from, std::string_view to );
 };
 

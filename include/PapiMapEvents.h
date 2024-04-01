@@ -17,8 +17,10 @@ extern "C"
 }
 #endif
 
+/// @brief Namespace storing info for Papi events mapping.
 namespace PapiMapEvents {
 
+    /// @brief Map from string to Papi event.
     const std::unordered_map<std::string, int> PapiMapEvents = {
             {"PAPI_L1_DCM", PAPI_L1_DCM},
             {"PAPI_L1_ICM", PAPI_L1_ICM},

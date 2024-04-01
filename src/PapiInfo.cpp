@@ -19,7 +19,7 @@ extern "C"
 #include "PapiMapEvents.h"
 
 
-PapiInfo::PapiInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) : Pid(pid),
+PapiInfo::PapiInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) : pid(pid),
                                                                                            debug_mode(debug_mode),
                                                                                            output_folder(output_folder),
                                                                                            configuration(config) {
@@ -35,11 +35,11 @@ void PapiInfo::run() {
     std::vector<int> events_vector;
     PAPI_option_t opt;
 
-    std::cout << "[" << this->class_name << "] Started PAPI info. Looking for PID: " << this->Pid << std::endl;
+    std::cout << "[" << this->class_name << "] Started PAPI info. Looking for PID: " << this->pid << std::endl;
 
     // No Process, we leave
-    if(kill(this->Pid,0) != 0) {
-        std::cout << "[" << this->class_name << "] No process for PID: " << this->Pid << ". Leaving" << std::endl;
+    if(kill(this->pid, 0) != 0) {
+        std::cout << "[" << this->class_name << "] No process for PID: " << this->pid << ". Leaving" << std::endl;
         return;
     }
 
@@ -100,7 +100,7 @@ void PapiInfo::run() {
     }
 
     //Attach to PID
-    if ((ret_val = PAPI_attach(EventSet, this->Pid)) != PAPI_OK){
+    if ((ret_val = PAPI_attach(EventSet, this->pid)) != PAPI_OK){
         std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_attach: " << PAPI_strerror(ret_val) << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -119,7 +119,7 @@ void PapiInfo::run() {
 
     unsigned int total_measures = 0;
 
-    while(kill(this->Pid,0) == 0){
+    while(kill(this->pid, 0) == 0){
         if ((ret_val = PAPI_read(EventSet, papi_counters)) != PAPI_OK) {
             std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_read: " << PAPI_strerror(ret_val) << std::endl;
             exit(EXIT_FAILURE);
@@ -176,7 +176,7 @@ void PapiInfo::write_results_to_file() {
     }
 
     for(const auto& event_name : this->configuration->papi_events) {
-        std::string file_name = std::to_string(this->Pid) + "_" +event_name + ".csv";
+        std::string file_name = std::to_string(this->pid) + "_" + event_name + ".csv";
 
         if (this->debug_mode) {
             std::cout << "[" << PapiInfo::class_name << "] " << event_name << " file: " << *this->output_folder + "/" + file_name << std::endl;

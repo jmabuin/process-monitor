@@ -23,10 +23,10 @@ extern "C"
 #include <fstream>
 
 
-EnergyInfo::EnergyInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) :Pid(pid),
-                                                                                              debug_mode(debug_mode),
-                                                                                              output_folder(output_folder),
-                                                                                              configuration(config) {
+EnergyInfo::EnergyInfo(int pid, Config *config, std::string *output_folder, bool debug_mode) : pid(pid),
+                                                                                               debug_mode(debug_mode),
+                                                                                               output_folder(output_folder),
+                                                                                               configuration(config) {
 }
 
 void EnergyInfo::run_thread() {
@@ -56,11 +56,11 @@ void EnergyInfo::run() {
     double total_time = 0.0;
     double local_time;
 
-    std::cout << "Started Energy info. Looking for PID: " << this->Pid << std::endl;
+    std::cout << "Started Energy info. Looking for PID: " << this->pid << std::endl;
 
     // No Process, we leave
-    if(kill(this->Pid,0) != 0) {
-        std::cout << "[" << this->class_name << "] No process for PID: " << this->Pid << ". Leaving" << std::endl;
+    if(kill(this->pid, 0) != 0) {
+        std::cout << "[" << this->class_name << "] No process for PID: " << this->pid << ". Leaving" << std::endl;
         return;
     }
 
@@ -187,7 +187,7 @@ void EnergyInfo::run() {
         exit(EXIT_FAILURE);
     }
 
-    while(kill(this->Pid,0) == 0){
+    while(kill(this->pid, 0) == 0){
 
         start_time=PAPI_get_real_nsec();
         sleep(this->configuration->measure_interval);
@@ -252,7 +252,7 @@ void EnergyInfo::write_results_to_file(const std::vector<std::string>& event_nam
     }
 
     for(const auto& event_name : event_names_vector) {
-        std::string file_name = std::to_string(this->Pid) + "_" + event_name + ".csv";
+        std::string file_name = std::to_string(this->pid) + "_" + event_name + ".csv";
 
         if (this->debug_mode) {
             std::cout << "[" << EnergyInfo::class_name << "] " << event_name << " file: " << *this->output_folder + "/" + file_name << std::endl;
