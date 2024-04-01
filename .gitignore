@@ -1,7 +1,5 @@
 /third-party/libs
-/third-party/papi-7.1.0
-/third-party/papi-7.1.0.tar.gz
-/third-party/procps
+/third-party/pfs/build
 build
 cmake-build-debug
 .idea
