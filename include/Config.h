@@ -1,6 +1,8 @@
-//
-// Created by Jose M. Abuin on 2/15/24.
-//
+/**
+ * @file Config.h
+ * @brief Header file to handle configuration options.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_CONFIG_H
 #define PROCESS_MONITOR_CONFIG_H
