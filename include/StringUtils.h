@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/21/24.
-//
+/**
+ * @file PapiInfo.h
+ * @brief Header file for the String Utils.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_STRINGUTILS_H
 #define PROCESS_MONITOR_STRINGUTILS_H

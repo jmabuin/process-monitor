@@ -1,3 +1,9 @@
+/**
+ * @file main.cpp
+ * @brief Implementation file for the main function.
+ * @author Jose M. Abuin
+ */
+
 #include <getopt.h>
 #include <Args.h>
 #include <Globals.h>

@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/15/24.
-//
+/**
+ * @file ProcessInfo.cpp
+ * @brief Implementation file for the ProcessInfo class.
+ * @author Jose M. Abuin
+ */
 
 #include "ProcessInfo.h"
 

@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/20/24.
-//
+/**
+ * @file PapiInfo.h
+ * @brief Header file for the Process Utils.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_PROCESSUTILS_H
 #define PROCESS_MONITOR_PROCESSUTILS_H
@@ -9,6 +11,9 @@
 #include <string>
 #include <vector>
 
+/**
+ * @brief Class containing different utility functions for processes.
+ */
 class ProcessUtils {
 
 public:

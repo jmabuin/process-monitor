@@ -1,7 +1,8 @@
-//
-// Created by chema on 3/3/24.
-//
-
+/**
+ * @file Globals.h
+ * @brief Header file for a single IO measure.
+ * @author Jose M. Abuin
+ */
 #ifndef PROCESS_MONITOR_IOMEASURE_H
 #define PROCESS_MONITOR_IOMEASURE_H
 

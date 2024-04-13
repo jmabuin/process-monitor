@@ -1,6 +1,8 @@
-//
-// Created by chema on 3/29/24.
-//
+/**
+ * @file Runner.h
+ * @brief Header file for the Runner class.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_RUNNER_H
 #define PROCESS_MONITOR_RUNNER_H

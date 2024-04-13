@@ -1,6 +1,8 @@
-//
-// Created by chema on 3/26/24.
-//
+/**
+ * @file TestsConfiguration.h
+ * @brief Header file for the Configuration tests.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_TESTSCONFIGURATION_H
 #define PROCESS_MONITOR_TESTSCONFIGURATION_H
