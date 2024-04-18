@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/16/24.
-//
+/**
+ * @file PapiMeasure.h
+ * @brief Header file for a single PAPI measure.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_PAPIMEASURE_H
 #define PROCESS_MONITOR_PAPIMEASURE_H

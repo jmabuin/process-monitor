@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/21/24.
-//
+/**
+ * @file StringUtils.cpp
+ * @brief Implementation file for the StringUtils class.
+ * @author Jose M. Abuin
+ */
 
 #include "StringUtils.h"
 

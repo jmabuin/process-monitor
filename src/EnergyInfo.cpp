@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/16/24.
-//
+/**
+ * @file EnergyInfo.cpp
+ * @brief Implementation file for the EnergyInfo class.
+ * @author Jose M. Abuin
+ */
 
 #ifdef __cplusplus
 extern "C"

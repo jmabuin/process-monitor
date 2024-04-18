@@ -1,6 +1,8 @@
-//
-// Created by chema on 3/26/24.
-//
+/**
+ * @file TestsConfiguration.cpp
+ * @brief Implementation file for the Configuration tests.
+ * @author Jose M. Abuin
+ */
 
 #include "TestsConfiguration.h"
 #include "Config.h"

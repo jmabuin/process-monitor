@@ -1,6 +1,8 @@
-//
-// Created by Jose M. Abuin on 2/15/24.
-//
+/**
+ * @file Config.cpp
+ * @brief Implementation file for the Config class.
+ * @author Jose M. Abuin
+ */
 
 
 #include <Config.h>

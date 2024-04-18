@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/16/24.
-//
+/**
+ * @file EnergyInfo.h
+ * @brief Header file for the Energy information.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_ENERGYINFO_H
 #define PROCESS_MONITOR_ENERGYINFO_H

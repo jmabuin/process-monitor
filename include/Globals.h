@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/15/24.
-//
+/**
+ * @file Globals.h
+ * @brief Header file for global information.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_GLOBALS_H
 #define PROCESS_MONITOR_GLOBALS_H

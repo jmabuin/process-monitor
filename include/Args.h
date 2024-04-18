@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/15/24.
-//
+/**
+ * @file Args.h
+ * @brief Header file to handle input args.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_ARGS_H
 #define PROCESS_MONITOR_ARGS_H

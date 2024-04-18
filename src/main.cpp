@@ -1,3 +1,9 @@
+/**
+ * @file main.cpp
+ * @brief Implementation file for the main function.
+ * @author Jose M. Abuin
+ */
+
 #include <getopt.h>
 #include <Args.h>
 #include <Globals.h>
@@ -6,10 +12,10 @@
 
 static int usage() {
     fprintf(stderr, "\n");
-    fprintf(stderr, "Program: ProcessMonitor (Monitor for a given process)\n");
+    fprintf(stderr, "Program: process-monitor (Monitor for a given process)\n");
     fprintf(stderr, "Version: %s\n", PACKAGE_VERSION);
     fprintf(stderr, "Contact: José M. Abuín <>\n\n");
-    fprintf(stderr, "Usage:   ProcessMonitor [options]\n\n");
+    fprintf(stderr, "Usage:   process-monitor [options]\n\n");
     fprintf(stderr, "Common options:\n");
     fprintf(stderr, "\n");
 

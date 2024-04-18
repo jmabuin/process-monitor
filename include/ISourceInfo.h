@@ -1,6 +1,8 @@
-//
-// Created by chema on 3/29/24.
-//
+/**
+ * @file ISourceInfo.h
+ * @brief Header file for abstract class for measure source.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_ISOURCEINFO_H
 #define PROCESS_MONITOR_ISOURCEINFO_H

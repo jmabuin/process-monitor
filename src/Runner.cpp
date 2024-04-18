@@ -1,6 +1,8 @@
-//
-// Created by chema on 3/29/24.
-//
+/**
+ * @file Runner.cpp
+ * @brief Implementation file for the Runner class.
+ * @author Jose M. Abuin
+ */
 
 #include "Runner.h"
 #include <iostream>

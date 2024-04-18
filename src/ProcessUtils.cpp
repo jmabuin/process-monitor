@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/20/24.
-//
+/**
+ * @file ProcessUtils.cpp
+ * @brief Implementation file for the ProcessUtils class.
+ * @author Jose M. Abuin
+ */
 
 #include <iostream>
 #include <fstream>

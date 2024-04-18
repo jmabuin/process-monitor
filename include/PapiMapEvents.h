@@ -1,7 +1,8 @@
-//
-// Created by chema on 2/16/24.
-//
-
+/**
+ * @file PapiMapEvents.h
+ * @brief Header file for PAPI map from string to event.
+ * @author Jose M. Abuin
+ */
 #ifndef PROCESS_MONITOR_PAPIMAPEVENTS_H
 #define PROCESS_MONITOR_PAPIMAPEVENTS_H
 

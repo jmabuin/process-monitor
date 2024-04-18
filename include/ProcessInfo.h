@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/15/24.
-//
+/**
+ * @file PapiInfo.h
+ * @brief Header file for the Process information.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_PROCESSINFO_H
 #define PROCESS_MONITOR_PROCESSINFO_H

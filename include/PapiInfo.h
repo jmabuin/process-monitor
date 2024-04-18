@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/16/24.
-//
+/**
+ * @file PapiInfo.h
+ * @brief Header file for the PAPI information.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_PAPIINFO_H
 #define PROCESS_MONITOR_PAPIINFO_H
@@ -13,7 +15,7 @@
 #include "ISourceInfo.h"
 
 /**
- * @brief Class containing all measures and configuration about Papi measures.
+ * @brief Class containing all measures and configuration about PAPI measures.
  */
 class PapiInfo : public ISourceInfo {
 public:

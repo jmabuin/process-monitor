@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/15/24.
-//
+/**
+ * @file CpuMeasure.h
+ * @brief Header file for a single CPU measure.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_CPUMEASURE_H
 #define PROCESS_MONITOR_CPUMEASURE_H

@@ -1,6 +1,8 @@
-//
-// Created by chema on 2/19/24.
-//
+/**
+ * @file EnergyMeasure.h
+ * @brief Header file for a single Energy measure.
+ * @author Jose M. Abuin
+ */
 
 #ifndef PROCESS_MONITOR_ENERGYMEASURE_H
 #define PROCESS_MONITOR_ENERGYMEASURE_H
