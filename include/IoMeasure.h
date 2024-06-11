@@ -11,7 +11,7 @@
  */
 struct IoMeasure {
     /// @brief Time of the measure in seconds since start.
-    unsigned long long time_seconds;
+    double time_seconds;
 
     /// @brief Amount of IO operations of this measure.
     unsigned long quantity;

@@ -120,7 +120,7 @@ void PapiInfo::run() {
     }
 
     unsigned int total_measures = 0;
-
+    auto sleep_time = unsigned (this->configuration->measure_interval * 1000);
     while(kill(this->pid, 0) == 0){
         if ((ret_val = PAPI_read(EventSet, papi_counters)) != PAPI_OK) {
             std::cerr << "[" << this->class_name << "][" << __func__ << "] Error in PAPI_read: " << PAPI_strerror(ret_val) << std::endl;
@@ -146,7 +146,8 @@ void PapiInfo::run() {
 
         total_measures++;
 
-        sleep(this->configuration->measure_interval);
+        //sleep(this->configuration->measure_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
     }
 
     //Finishing

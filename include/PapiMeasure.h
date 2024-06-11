@@ -12,7 +12,7 @@
  */
 struct PapiMeasure {
     /// @brief Time of the measure in seconds since start.
-    unsigned long long time_seconds;
+    double time_seconds;
 
     /// @brief Quantity for this Papi event measure..
     long long int quantity;

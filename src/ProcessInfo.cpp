@@ -57,22 +57,23 @@ void ProcessInfo::run() {
 
     // Variables to calculate CPU
     auto tic = sysconf (_SC_CLK_TCK);
-    unsigned long old_time = 0;
-    unsigned long long seconds = 0;
+    double old_time = 0;
+    double seconds = 0;
 
     // Variables to calculate IO reads and writes
     unsigned long old_reads = 0;
     unsigned long old_writes = 0;
+    auto sleep_time = unsigned (this->configuration->measure_interval * 1000);
 
     while(kill(this->pid, 0) == 0) {
         // CPU and Mem
         auto stats = task.get_stat();
         auto stats_mem = task.get_statm();
 
-        auto new_time = stats.utime + stats.stime;
+        auto new_time = double(stats.utime + stats.stime);
 
         if (old_time != 0) {
-            auto used_time_seconds = double(new_time - old_time) / double(tic);
+            auto used_time_seconds = (new_time - old_time) / double(tic);
             auto process_cpu_percentage = used_time_seconds * 100.0 / this->configuration->measure_interval;
 
             if (this->debug_mode) {
@@ -115,7 +116,8 @@ void ProcessInfo::run() {
         }
 
         seconds += this->configuration->measure_interval;
-        sleep(this->configuration->measure_interval);
+        //sleep(this->configuration->measure_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
 
     }
 

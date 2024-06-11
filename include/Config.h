@@ -18,7 +18,7 @@ class Config {
 public:
 
     /// @brief Interval used to takes measures (in seconds).
-    unsigned int measure_interval = 5;
+    double measure_interval = 5.0;
 
     /// @brief Indicates whether to measure CPU percentage or not.
     bool measure_cpu = true;
