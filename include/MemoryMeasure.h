@@ -12,7 +12,7 @@
  */
 struct MemoryMeasure {
     /// @brief Time of the measure in seconds since start.
-    unsigned long long time_seconds;
+    double time_seconds;
 
     /// @brief Amount of memory of this measure. In the units provided in the configuration.
     double quantity;

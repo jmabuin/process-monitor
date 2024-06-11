@@ -189,10 +189,12 @@ void EnergyInfo::run() {
         exit(EXIT_FAILURE);
     }
 
+    auto sleep_time = unsigned (this->configuration->measure_interval * 1000);
     while(kill(this->pid, 0) == 0){
 
         start_time=PAPI_get_real_nsec();
-        sleep(this->configuration->measure_interval);
+        //sleep(this->configuration->measure_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
 
         //Read measures and store them
         if ((ret_val = PAPI_read(EventSet, values)) != PAPI_OK) {
@@ -225,7 +227,8 @@ void EnergyInfo::run() {
                 }
             }
         }
-        sleep(this->configuration->measure_interval);
+        //sleep(this->configuration->measure_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
     }
 
     //Finishing
